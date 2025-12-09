@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000"; 
+export const API_URL = "http://127.0.0.1:8000";
 
 // --- Auth ---
 export async function login(email, password) {
@@ -15,11 +15,14 @@ export async function login(email, password) {
   return await res.json();
 }
 
-export async function signup(name, email, password) {
+export async function signup(name, email, password, dob = null, gender = null, role = "user") {
   const formData = new FormData();
   formData.append("name", name);
   formData.append("email", email);
   formData.append("password", password);
+  if (dob) formData.append("dob", dob);
+  if (gender) formData.append("gender", gender);
+  formData.append("role", role);
 
   const res = await fetch(`${API_URL}/auth/signup`, {
     method: "POST",
@@ -30,11 +33,20 @@ export async function signup(name, email, password) {
   return await res.json();
 }
 
+export async function getMyProfile(token) {
+  const res = await fetch(`${API_URL}/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch profile");
+  return await res.json();
+}
+
+
 // --- Verification ---
 export async function verifyDocument(token, file) {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("user_email", "user@demo.com"); 
+  formData.append("user_email", "user@demo.com");
 
   const res = await fetch(`${API_URL}/compliance/verify_identity`, {
     method: "POST",
@@ -76,6 +88,27 @@ export async function getUserDocs(token) {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error("Failed to fetch documents");
+  return await res.json();
+}
+
+export async function getSubmissions(token) {
+  const res = await fetch(`${API_URL}/compliance/submissions`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch submissions");
+  return await res.json();
+}
+
+export async function setDocumentDecision(token, docId, decision, notes = "") {
+  const res = await fetch(`${API_URL}/compliance/documents/${docId}/decision`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ decision, notes }),
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`Failed to set decision: ${txt}`);
+  }
   return await res.json();
 }
 

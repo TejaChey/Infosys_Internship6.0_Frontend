@@ -4,15 +4,19 @@ import SignUp from './SignUp';
 import Dashboard from './Dashboard';
 
 
+import { ToastProvider } from "./contexts/ToastContext";
+
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </Router>
+    <ToastProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </Router>
+    </ToastProvider>
   );
 }
 
